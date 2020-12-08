@@ -1,0 +1,12 @@
+file(GLOB_RECURSE CURRENT_HEADERS_CUH *.cuh)
+file(GLOB_RECURSE CURRENT_HEADERS_HPP *.hpp)
+find_package(OpenMP)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_60 -std=c++11 -Xptxas -dlcm=cg)
+
+cuda_add_library(algorithm_lib_cuh ../empty.cpp ${CURRENT_HEADERS_CUH})
+cuda_add_library(algorithm_lib_hpp ../empty.cpp ${CURRENT_HEADERS_HPP})
+cuda_add_library(algorithm_lib ../empty.cpp)
+target_link_libraries(algorithm_lib algorithm_lib_hpp algorithm_lib_cuh include_lib)
