@@ -23,10 +23,8 @@ This repository contains code for our VLDB submission "Accelerating Exact Constr
 Compilation
 --------
 
-Compiler:
+Requirements:
 * nvcc > 7.0
-
-Build system:
 * CMake >= 3.12
 
 
@@ -43,13 +41,45 @@ To run:
 $ ./vine
 ```
 
+The binary ```Vine``` will read the config file at ```./inputs/config``` and get the file path according to the config file. To run multiple query instances, please use the python scripts in the script folder.
+
 Input Formats
 -----------
 We support the road network format used by [COLA](https://sourceforge.net/projects/cola2016/), and graphs from  [SNAP dataset collection](https://snap.stanford.edu/data/index.html). Please check main.cu and include/io.hpp for graph input.
 
 Please check input/README.md for details about the input config file
 
-## How to cite **Vine** 
+
+Programming with Vine
+---------------------
+To use the APIs provided in ```Vine```, please refer to the ```label``` class defined in ```include/label.hpp```. Generally, a CSP solver can be programmed by providing t he following three functions, **expand**, **dominate**. The feasibility checking of the label is refactored to another class in ```include/contraint.hpp```. Please check the **pass_constraints_check** function as well.
+
+```c++
+class c_label {
+ public:
+  int vid; float d; float delay;
+  __device__ c_label(int vid, float d, float delay) : vid(vid), d(d), delay(delay) {
+    return;
+  }
+
+  template<typename Edge_t>
+  __device__ void expand(int next_v, Edge_t e, c_label *son) {
+    son->vid = next_v;
+    son->d = this->d + e.len;
+    son->delay = this->delay + e.delay;
+  }
+
+  __device__ static bool dominate(c_label a, c_label b) {
+    return a.d <= b.d && a.delay <= b.delay;
+  }
+};
+```
+
+
+
+How to cite **Vine** 
+-----------
+
 If you use **Vine**, please cite our work ([full version](https://www.comp.nus.edu.sg/~hebs/pub/vine20.pdf)).
 ```
 @article{shengliang2021vine,
